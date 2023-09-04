@@ -17,6 +17,11 @@ import './App.css';
  */
 type GenderProps = 'M' | 'F' | 'Other';
 
+type AlertProps = {
+    showAlert: boolean;
+    alertMessage: string;
+}
+
 function App() {
     /* These lines of code are initializing state variables using the `useState` hook in React. */
     const [age, setAge] = useState<number | null>(null);
@@ -24,10 +29,8 @@ function App() {
     const [hasLicense, setHasLicense] = useState<string | null>(null);
     const [isFirstCar, setIsFirstCar] = useState<string | null>(null);
     const [surveyComplete, setSurveyComplete] = useState<boolean>(false);
+    const [alert, setAlert] = useState<AlertProps>({showAlert: false, alertMessage: ''});
 
-    // State variables for question visibility
-    const [showSecondQuestion, setShowSecondQuestion] = useState<boolean>(false);
-    const [showThirdQuestion, setShowThirdQuestion] = useState<boolean>(false);
 
     /**
      * Handles form submission.
@@ -44,13 +47,13 @@ function App() {
 
         // Validation
         if (age !== null && age < 18) {
-            alert('Thank you for your interest, but you are under 18.');
+            setAlert({showAlert: true, alertMessage: 'Thank you for your interest, but you are under 18.'});
+            // alert('Thank you for your interest, but you are under 18.');
         } else if (hasLicense === 'No') {
-            alert('Thank you for your interest, but you prefer using other transport.');
+            // alert('Thank you for your interest, but you prefer using other transport.');
         } else if (age !== null && age >= 18 && age <= 25 && isFirstCar === 'Yes') {
-            alert('We are targeting more experienced clients. Thank you for your interest.');
+            // alert('We are targeting more experienced clients. Thank you for your interest.');
         } else {
-            setShowSecondQuestion(true);
             // alert('Thank you for completing the survey!');
             // setSurveyComplete(true);
         }
@@ -67,10 +70,21 @@ function App() {
      * integer, and updates the age state accordingly if a valid value is provided.
      *
      */
+    const handleAgeBlur = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const ageValue = parseInt(e.target.value);
+        if (!isNaN(ageValue)) {
+            setAge(ageValue);
+        }
+
+        if (ageValue !== null && ageValue < 18) {
+            setAlert({showAlert: true, alertMessage: 'Thank you for your interest, but you are under 18.'});
+        }
+    };
+
     const handleAgeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const ageValue = parseInt(e.target.value);
         if (!isNaN(ageValue)) {
-            setAge(age);
+            setAge(ageValue);
         }
     };
 
@@ -85,6 +99,27 @@ function App() {
         }
     };
 
+    const handleDrivingLicenseChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const selectedValue = e.target.value;
+        setHasLicense(selectedValue);
+        if (selectedValue === 'No') {
+            setAlert({
+                showAlert: true,
+                alertMessage: 'Thank you for your interest, but you prefer using other transport'
+            });
+        }
+    };
+
+    const handleCompleteSurvey = () => {
+        // Display the custom alert when the survey is completed
+        setAlert({showAlert: true, alertMessage: 'Thank you for completing the survey!'});
+    };
+
+    const handleAlertClose = () => {
+        // Reload the page to original state when the "OK" button in the custom alert is clicked
+        window.location.reload();
+    };
+
     return (
         <div className="App">
             <h1>Car Sales Survey</h1>
@@ -94,7 +129,8 @@ function App() {
                     <input
                         type="number"
                         id="age"
-                        value={age?.valueOf()}
+                        value={age !== null ? age : ''}
+                        onBlur={handleAgeBlur}
                         onChange={handleAgeChange}
                         required
                         min="0"
@@ -116,31 +152,35 @@ function App() {
                     </select>
                     <br/>
 
-                    <label htmlFor="license">Do you own a car driving license?</label>
-                    <input
-                        type="radio"
-                        id="yes-license"
-                        name="license"
-                        value="Yes"
-                        checked={hasLicense === 'Yes'}
-                        onChange={() => setHasLicense('Yes')}
-                        required
-                    />
-                    <label htmlFor="yes-license">Yes</label>
-                    <input
-                        type="radio"
-                        id="no-license"
-                        name="license"
-                        value="No"
-                        checked={hasLicense === 'No'}
-                        onChange={() => setHasLicense('No')}
-                        required
-                    />
-                    <label htmlFor="no-license">No, I prefer using other transport</label>
-                    <br/>
+                    {age !== null && age >= 18 && (
+                        <div>
+                            <label htmlFor="license">Do you own a car driving license?</label>
+                            <input
+                                type="radio"
+                                id="yes-license"
+                                name="license"
+                                value="Yes"
+                                checked={hasLicense === 'Yes'}
+                                onChange={handleDrivingLicenseChange}
+                                required
+                            />
+                            <label htmlFor="yes-license">Yes</label>
+                            <input
+                                type="radio"
+                                id="no-license"
+                                name="license"
+                                value="No"
+                                checked={hasLicense === 'No'}
+                                onChange={handleDrivingLicenseChange}
+                                required
+                            />
+                            <label htmlFor="no-license">No, I prefer using other transport</label>
+                            <br/>
+                        </div>
+                    )}
 
                     {/* Bonus question for users aged 18-25 */}
-                    {age !== null && age >= 18 && age <= 25 && (
+                    {age !== null && age >= 18 && age <= 25 && hasLicense === 'Yes' && (
                         <div>
                             <label htmlFor="first-car">Is this your first car?</label>
                             <input
@@ -171,6 +211,17 @@ function App() {
             {surveyComplete && (
                 <div>
                     <p>Thank you for completing the survey!</p>
+                </div>
+            )}
+
+            {alert.showAlert && (
+                <div className="custom-alert">
+                    <div className="custom-alert-content">
+                        <p>{alert.alertMessage}</p>
+                        <button className="custom-alert-button" onClick={handleAlertClose}>
+                            OK
+                        </button>
+                    </div>
                 </div>
             )}
         </div>
