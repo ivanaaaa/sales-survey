@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import './App.css';
 
 /**
@@ -20,6 +20,18 @@ type GenderProps = 'M' | 'F' | 'Other';
 type AlertProps = {
     showAlert: boolean;
     alertMessage: string;
+}
+
+// Define the Car type
+type CarProps = {
+    age: number | null; // Add age property
+    hasLicense: string | null; // Add hasLicense property
+    isFirstCar: string | null; // Add isFirstCar property
+    drivetrainOption: string | null; // Add drivetrainOption property
+    isWorriedFuelEmissions: string | null; // Add isWorriedFuelEmissions property
+    carNumber: number | null; // Add carNumber property
+    make: string;
+    model: string;
 }
 
 function App() {
@@ -51,7 +63,7 @@ function App() {
     // Render car inputs for Question 8
     const carInputs = [];
     for (let i = 0; i < carNumber; i++) {
-        const carInfo = carInfoList[i] || { make: "", model: "" }; // Provide a default value if carInfoList[i] doesn't exist
+        const carInfo = carInfoList[i] || {make: "", model: ""}; // Provide a default value if carInfoList[i] doesn't exist
 
         carInputs.push(
             <div key={i}>
@@ -87,35 +99,35 @@ function App() {
 
     const [alert, setAlert] = useState<AlertProps>({showAlert: false, alertMessage: ''});
 
-    const [showLastQuestions, setshowLastQuestions] = useState<boolean>(false);
+    const [surveyData, setSurveyData] = useState<CarProps[]>([]); // Initialize survey data state
 
 
-    /**
-     * Handles form submission.
-     *
-     * @param {React.FormEvent} e - The form submission event.
-     * @returns {void}
-     * @description
-     * This function is responsible for handling form submission. It performs validation based on user input and displays
-     * appropriate alerts or updates the survey completion status accordingly.
-     *
-     */
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-
-        // Validation
-        if (age !== null && age < 18) {
-            setAlert({showAlert: true, alertMessage: 'Thank you for your interest, but you are under 18.'});
-            // alert('Thank you for your interest, but you are under 18.');
-        } else if (hasLicense === 'No') {
-            // alert('Thank you for your interest, but you prefer using other transport.');
-        } else if (age !== null && age >= 18 && age <= 25 && isFirstCar === 'Yes') {
-            // alert('We are targeting more experienced clients. Thank you for your interest.');
-        } else {
-            // alert('Thank you for completing the survey!');
-            // setSurveyComplete(true);
-        }
-    };
+    // /**
+    //  * Handles form submission.
+    //  *
+    //  * @param {React.FormEvent} e - The form submission event.
+    //  * @returns {void}
+    //  * @description
+    //  * This function is responsible for handling form submission. It performs validation based on user input and displays
+    //  * appropriate alerts or updates the survey completion status accordingly.
+    //  *
+    //  */
+    // const handleSubmit = (e: React.FormEvent) => {
+    //     e.preventDefault();
+    //
+    //     // Validation
+    //     if (age !== null && age < 18) {
+    //         setAlert({showAlert: true, alertMessage: 'Thank you for your interest, but you are under 18.'});
+    //         // alert('Thank you for your interest, but you are under 18.');
+    //     } else if (hasLicense === 'No') {
+    //         // alert('Thank you for your interest, but you prefer using other transport.');
+    //     } else if (age !== null && age >= 18 && age <= 25 && isFirstCar === 'Yes') {
+    //         // alert('We are targeting more experienced clients. Thank you for your interest.');
+    //     } else {
+    //         // alert('Thank you for completing the survey!');
+    //         // setSurveyComplete(true);
+    //     }
+    // };
 
 
     /**
@@ -176,8 +188,6 @@ function App() {
                 showAlert: true,
                 alertMessage: 'We are targeting more experienced clients. Thank you for your interest.'
             });
-        } else {
-            setshowLastQuestions(true);
         }
     };
 
@@ -194,14 +204,12 @@ function App() {
 
         if (!isNaN(carNumberValue)) {
             setCarNumber(carNumberValue);
-        }
-        else
-        {
+        } else {
             setCarNumber(0);
         }
 
         // Generate carInfoList with unique make and model values for each car
-        const newCarInfoList = Array.from({ length: carNumberValue }, () => ({
+        const newCarInfoList = Array.from({length: carNumberValue}, () => ({
             make: "",
             model: ""
         }));
@@ -220,7 +228,7 @@ function App() {
     };
 
     // Function to handle the change in car model
-    const handleCarModelChange = (index: number, model:string) => {
+    const handleCarModelChange = (index: number, model: string) => {
         const updatedCarInfoList = [...carInfoList];
         updatedCarInfoList[index].model = model;
         setCarInfoList(updatedCarInfoList);
@@ -246,6 +254,7 @@ function App() {
     };
 
     const handleCompleteSurvey = () => {
+        setSurveyComplete(true);
         // Display the custom alert when the survey is completed
         setAlert({showAlert: true, alertMessage: 'Thank you for completing the survey!'});
     };
@@ -254,6 +263,129 @@ function App() {
         // Reload the page to original state when the "OK" button in the custom alert is clicked
         window.location.reload();
     };
+
+    // Load survey data from local storage when the component mounts
+    useEffect(() => {
+        const savedSurveyData = localStorage.getItem('surveyData');
+        if (savedSurveyData) {
+            const parsedData = JSON.parse(savedSurveyData);
+            setSurveyData(parsedData);
+        }
+    }, []);
+
+    // Function to save survey data to local storage
+    const saveSurveyDataToLocalStorage = (data: CarProps[]) => {
+        localStorage.setItem('surveyData', JSON.stringify(data));
+    };
+
+    // // Save survey data to local storage whenever it changes
+    // useEffect(() => {
+    //     localStorage.setItem('surveyData', JSON.stringify(surveyData));
+    // }, [surveyData]);
+
+    const updateAndSaveSurvey = () => {
+        // Construct the new survey response
+        const newSurveyResponse: CarProps = {
+            age: null,
+            hasLicense: null,
+            isFirstCar: null,
+            drivetrainOption: null,
+            isWorriedFuelEmissions: null,
+            carNumber: 0,
+            make: carInfoList.map(car => car.make).join(', '),
+            model: carInfoList.map(car => car.model).join(', '),
+        };
+
+        // Add car make and model information to the survey response
+        newSurveyResponse.make = carInfoList.map((carInfo) => carInfo.make).join(', ');
+        newSurveyResponse.model = carInfoList.map((carInfo) => carInfo.model).join(', ');
+
+        // Add other survey data to the response
+        newSurveyResponse.age = age;
+        newSurveyResponse.hasLicense = hasLicense;
+        newSurveyResponse.isFirstCar = isFirstCar;
+        newSurveyResponse.drivetrainOption = drivetrainOption;
+        newSurveyResponse.isWorriedFuelEmissions = isWorriedFuelEmissions;
+        newSurveyResponse.carNumber = carNumber;
+
+        // Update the survey data state with the new response
+        const updatedSurveyData = [...surveyData, newSurveyResponse];
+        setSurveyData(updatedSurveyData);
+
+        // Save the updated survey data to local storage
+        saveSurveyDataToLocalStorage(updatedSurveyData);
+    }
+
+    const surveyInformationForCompany = () => {
+        // Calculate statistics based on all respondents
+        const totalRespondents = surveyData.length;
+
+        // Calculate statistics based on all respondents
+        // const totalRespondents = surveyData.length + 1; // Add 1 for the current respondent
+        const adolescents = surveyData.filter(respondent => respondent.age !== null && respondent.age < 18).length;
+        const unlicensed = surveyData.filter(respondent => respondent.hasLicense === 'No').length;
+        const firstTimers = surveyData.filter(respondent => respondent.age !== null && respondent.age >= 18 && respondent.age <= 25 && respondent.isFirstCar === 'Yes').length;
+        const targetables = surveyData.filter(respondent => respondent.age !== null && respondent.age >= 18 && respondent.hasLicense === 'Yes').length;
+        const targetablesWithFuelEmissions = surveyData.filter(respondent => respondent.isWorriedFuelEmissions === 'Yes').length;
+        const targetablesWithFwdOrIdk = surveyData.filter(respondent => respondent.drivetrainOption === 'FWD' || respondent.drivetrainOption === 'IDK').length;
+        // const totalCarsInFamily = surveyData.reduce((total, respondent) => total + respondent.carNumber, 0);
+
+        // Calculate the total number of cars in family, considering null values
+        const totalCarsInFamily = surveyData.reduce((total, respondent) => {
+            if (typeof respondent.carNumber === 'number') {
+                return total + respondent.carNumber;
+            } else {
+                return total;
+            }
+        }, 0);
+
+        // Calculate percentages
+        const percentageAdolescents = (adolescents / totalRespondents) * 100;
+        const percentageUnlicensed = (unlicensed / totalRespondents) * 100;
+        const percentageFirstTimers = (firstTimers / totalRespondents) * 100;
+        const percentageTargetables = (targetables / totalRespondents) * 100;
+        const percentageFuelEmissionsCare = (targetablesWithFuelEmissions / targetables) * 100;
+        const percentageFwdOrUnknownDrivetrain = (targetablesWithFwdOrIdk / targetables) * 100;
+        const averageCarsInFamily = totalCarsInFamily / totalRespondents;
+
+        // Log the results
+        console.log("How many under 18s participated:", adolescents);
+        console.log("How many unlicensed drivers participated:", unlicensed);
+        console.log("How many 18-25s first car owners participated:", firstTimers);
+        console.log("How many targetable clients participated:", targetables);
+        console.log("A breakdown of each respondent group by percentage:");
+        console.log(" - Percentage of adolescents:", percentageAdolescents);
+        console.log(" - Percentage of unlicensed drivers:", percentageUnlicensed);
+        console.log(" - Percentage of first-time car owners (18-25):", percentageFirstTimers);
+        console.log(" - Percentage of targetable clients:", percentageTargetables);
+        console.log("The percentage of targetables that care about fuel emissions:", percentageFuelEmissionsCare);
+        console.log("The percentage of targetables that picked FWD or 'I don't know' for drivetrain:", percentageFwdOrUnknownDrivetrain);
+        console.log("The average amount of cars in a family:", averageCarsInFamily);
+    }
+
+    // Handle form submission and calculate statistics
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+
+        // Validation
+        if (age !== null && age < 18) {
+            setAlert({showAlert: true, alertMessage: 'Thank you for your interest, but you are under 18.'});
+        } else if (hasLicense === 'No') {
+            setAlert({
+                showAlert: true,
+                alertMessage: 'Thank you for your interest, but you prefer using other transport'
+            });
+        } else if (age !== null && age >= 18 && age <= 25 && isFirstCar === 'Yes') {
+            setAlert({
+                showAlert: true,
+                alertMessage: 'We are targeting more experienced clients. Thank you for your interest.'
+            });
+        } else {
+            updateAndSaveSurvey();
+            surveyInformationForCompany();
+            handleCompleteSurvey();
+        }
+    }
 
     return (
         <div className="App">
@@ -339,7 +471,8 @@ function App() {
                         </div>
                     )}
 
-                    {showLastQuestions && (
+                    {(age !== null && age >= 18 && hasLicense === 'Yes')
+                    && (isFirstCar === 'No' || isFirstCar === null) && (
                         <div>
                             <label htmlFor="drivetrain">Which drivetrain do you prefer?</label>
                             <input
