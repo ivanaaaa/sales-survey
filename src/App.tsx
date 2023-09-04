@@ -29,7 +29,10 @@ function App() {
     const [hasLicense, setHasLicense] = useState<string | null>(null);
     const [isFirstCar, setIsFirstCar] = useState<string | null>(null);
     const [drivetrainOption, setDrivetrainOption] = useState<string | null>(null);
+    const [isWorriedFuelEmissions, setWorriedFuelEmissions] = useState<string | null>(null);
     const [surveyComplete, setSurveyComplete] = useState<boolean>(false);
+    const [carNumber, setCarNumber] = useState<number>(0);
+
     const [alert, setAlert] = useState<AlertProps>({showAlert: false, alertMessage: ''});
 
     const [showLastQuestions, setshowLastQuestions] = useState<boolean>(false);
@@ -128,6 +131,15 @@ function App() {
 
     const handleDrivetrainChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setDrivetrainOption(e.target.value);
+    };
+
+    const handleWorriedFuelEmissionsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setWorriedFuelEmissions(e.target.value);
+    };
+
+    const handleCarNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const carNumerValue = parseInt(e.target.value);
+        setCarNumber(carNumerValue);
     };
 
     const handleCompleteSurvey = () => {
@@ -254,6 +266,40 @@ function App() {
                                 onChange={handleDrivetrainChange}
                             />
                             <label htmlFor="idk-drivetrain">I don’t know</label>
+
+                            <br/>
+
+                            <label htmlFor="fuel-emissions">Are you worried about fuel emissions?</label>
+                            <input
+                                type="radio"
+                                id="yes-fuel-emissions"
+                                name="fuel-emissions"
+                                value="Yes"
+                                checked={isWorriedFuelEmissions === 'Yes'}
+                                onChange={handleWorriedFuelEmissionsChange}
+                            />
+                            <label htmlFor="yes-fuel-emissions">Yes</label>
+                            <input
+                                type="radio"
+                                id="no-fuel-emissions"
+                                name="fuel-emissions"
+                                value="No"
+                                checked={isWorriedFuelEmissions === 'No'}
+                                onChange={handleWorriedFuelEmissionsChange}
+                            />
+                            <label htmlFor="no-fuel-emissions">No</label>
+                            <br/>
+
+                            <label htmlFor="carNumber">How many cars do you have in your family?</label>
+                            <input
+                                type="number"
+                                id="carNumber"
+                                value={carNumber}
+                                onChange={handleCarNumberChange}
+                                required
+                                min="0"
+                            />
+                            <br/>
                         </div>
                     )}
 
