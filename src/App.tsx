@@ -32,6 +32,58 @@ function App() {
     const [isWorriedFuelEmissions, setWorriedFuelEmissions] = useState<string | null>(null);
     const [surveyComplete, setSurveyComplete] = useState<boolean>(false);
     const [carNumber, setCarNumber] = useState<number>(0);
+    const [step, setStep] = useState(1);
+    // State to store car make and model for each car
+    const [carInfoList, setCarInfoList] = useState(
+        new Array(carNumber).fill({make: "", model: ""})
+    );
+
+    const handleNext = () => {
+        if (step === 1) {
+            // Move from step 1 (Question 7) to step 2 (Question 8)
+            setStep(2);
+        } else {
+            // Handle form submission or other actions
+        }
+    };
+    // List of the five most popular car makes
+    const popularCarMakes = ["BMW", "Toyota", "Honda", "Ford", "Chevrolet"];
+    // Render car inputs for Question 8
+    const carInputs = [];
+    for (let i = 0; i < carNumber; i++) {
+        const carInfo = carInfoList[i] || { make: "", model: "" }; // Provide a default value if carInfoList[i] doesn't exist
+
+        carInputs.push(
+            <div key={i}>
+                <h3>Car {i + 1}:</h3>
+                <label>
+                    Car Make:
+                    <select
+                        value={carInfo.make}
+                        onChange={(e) => handleCarMakeChange(i, e.target.value)}
+                    >
+                        <option value="">Select a make</option>
+                        {popularCarMakes.map((make, index) => (
+                            <option key={index} value={make}>
+                                {make}
+                            </option>
+                        ))}
+                    </select>
+                </label>
+
+                <label>
+                    Model Name:
+                    <input
+                        type="text"
+                        value={carInfo.model}
+                        onChange={(e) => handleCarModelChange(i, e.target.value)}
+                        placeholder="Enter model name"
+                    />
+                </label>
+            </div>
+        );
+    }
+
 
     const [alert, setAlert] = useState<AlertProps>({showAlert: false, alertMessage: ''});
 
@@ -138,8 +190,59 @@ function App() {
     };
 
     const handleCarNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const carNumerValue = parseInt(e.target.value);
-        setCarNumber(carNumerValue);
+        const carNumberValue = parseInt(e.target.value);
+
+        if (!isNaN(carNumberValue)) {
+            setCarNumber(carNumberValue);
+        }
+        else
+        {
+            setCarNumber(0);
+        }
+
+        // Generate carInfoList with unique make and model values for each car
+        const newCarInfoList = Array.from({ length: carNumberValue }, () => ({
+            make: "",
+            model: ""
+        }));
+        setCarInfoList(newCarInfoList);
+        // Call handleNext when car number changes
+        if (step === 1) {
+            handleNext();
+        }
+    };
+
+    // Function to handle the change in car make
+    const handleCarMakeChange = (index: number, make: string) => {
+        const updatedCarInfoList = [...carInfoList];
+        updatedCarInfoList[index].make = make;
+        setCarInfoList(updatedCarInfoList);
+    };
+
+    // Function to handle the change in car model
+    const handleCarModelChange = (index: number, model:string) => {
+        const updatedCarInfoList = [...carInfoList];
+        updatedCarInfoList[index].model = model;
+        setCarInfoList(updatedCarInfoList);
+        // Validate model name for BMW
+        if (updatedCarInfoList[index].make === "BMW") {
+            validateBMWModel(model, index);
+        }
+    };
+
+    // Function to validate BMW model against specific patterns
+    const validateBMWModel = (model: string, index: number) => {
+        // Define the regex patterns for BMW models
+        const pattern1 = /^(M)?\d+[diDI]?$/;
+        const pattern2 = /^[XZ]\d$/i;
+
+        // Check if the model matches either pattern
+        const isValidModel = pattern1.test(model) || pattern2.test(model);
+
+        // Update validation status for the current car
+        const updatedCarInfoList = [...carInfoList];
+        updatedCarInfoList[index].isValidModel = isValidModel;
+        setCarInfoList(updatedCarInfoList);
     };
 
     const handleCompleteSurvey = () => {
@@ -290,16 +393,26 @@ function App() {
                             <label htmlFor="no-fuel-emissions">No</label>
                             <br/>
 
-                            <label htmlFor="carNumber">How many cars do you have in your family?</label>
-                            <input
-                                type="number"
-                                id="carNumber"
-                                value={carNumber}
-                                onChange={handleCarNumberChange}
-                                required
-                                min="0"
-                            />
-                            <br/>
+                            {(step === 1 || step === 2) && (
+                                <div>
+                                    <label htmlFor="carNumber">How many cars do you have in your family?</label>
+                                    <input
+                                        type="number"
+                                        id="carNumber"
+                                        value={carNumber === null ? '' : carNumber}
+                                        onChange={handleCarNumberChange}
+                                        required
+                                        min="0"
+                                    />
+                                    <br/>
+                                </div>
+                            )}
+                            {step === 2 && carNumber > 0 && (
+                                <div>
+                                    <h3>Question 8: Which car make and model do you drive?</h3>
+                                    {carInputs}
+                                </div>
+                            )}
                         </div>
                     )}
 
