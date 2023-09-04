@@ -18,33 +18,59 @@ import './App.css';
 type GenderProps = 'M' | 'F' | 'Other';
 
 function App() {
-    const [age, setAge] = useState<{ ageValue: number } | null>(null);
+    /* These lines of code are initializing state variables using the `useState` hook in React. */
+    const [age, setAge] = useState<number | null>(null);
     const [gender, setGender] = useState<GenderProps | ''>('');
     const [hasLicense, setHasLicense] = useState<string | null>(null);
     const [isFirstCar, setIsFirstCar] = useState<string | null>(null);
     const [surveyComplete, setSurveyComplete] = useState<boolean>(false);
 
+    // State variables for question visibility
+    const [showSecondQuestion, setShowSecondQuestion] = useState<boolean>(false);
+    const [showThirdQuestion, setShowThirdQuestion] = useState<boolean>(false);
+
+    /**
+     * Handles form submission.
+     *
+     * @param {React.FormEvent} e - The form submission event.
+     * @returns {void}
+     * @description
+     * This function is responsible for handling form submission. It performs validation based on user input and displays
+     * appropriate alerts or updates the survey completion status accordingly.
+     *
+     */
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
 
         // Validation
-        if (age !== null && age.ageValue < 18) {
+        if (age !== null && age < 18) {
             alert('Thank you for your interest, but you are under 18.');
         } else if (hasLicense === 'No') {
             alert('Thank you for your interest, but you prefer using other transport.');
-        } else if (age !== null && age.ageValue >= 18 && age.ageValue <= 25 && isFirstCar === 'Yes') {
+        } else if (age !== null && age >= 18 && age <= 25 && isFirstCar === 'Yes') {
             alert('We are targeting more experienced clients. Thank you for your interest.');
         } else {
-            alert('Thank you for completing the survey!');
-            setSurveyComplete(true);
+            setShowSecondQuestion(true);
+            // alert('Thank you for completing the survey!');
+            // setSurveyComplete(true);
         }
     };
 
 
+    /**
+     * Handles changes in the age input field.
+     *
+     * @param {React.ChangeEvent<HTMLInputElement>} e - The change event of the age input field.
+     * @returns {void}
+     * @description
+     * This function is responsible for handling changes in the age input field. It parses the input value, checks if it's a valid
+     * integer, and updates the age state accordingly if a valid value is provided.
+     *
+     */
     const handleAgeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const ageValue = parseInt(e.target.value);
         if (!isNaN(ageValue)) {
-            setAge({ageValue: ageValue});
+            setAge(age);
         }
     };
 
@@ -68,9 +94,11 @@ function App() {
                     <input
                         type="number"
                         id="age"
-                        value={age?.ageValue || ''}
+                        value={age?.valueOf()}
                         onChange={handleAgeChange}
                         required
+                        min="0"
+                        max="100"
                     />
                     <br/>
 
@@ -112,7 +140,7 @@ function App() {
                     <br/>
 
                     {/* Bonus question for users aged 18-25 */}
-                    {age !== null && age.ageValue >= 18 && age.ageValue <= 25 && (
+                    {age !== null && age >= 18 && age <= 25 && (
                         <div>
                             <label htmlFor="first-car">Is this your first car?</label>
                             <input
