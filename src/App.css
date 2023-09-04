@@ -6,7 +6,7 @@
   border-radius: 10px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   max-width: 600px;
-  margin: 0 auto;
+  margin: 10px auto;
 }
 
 .App-logo {
@@ -66,7 +66,15 @@ label {
 }
 
 /* Style the input fields */
-input[type="number"],
+input[type="number"] {
+  width: 96%;
+  padding: 10px;
+  margin-bottom: 20px;
+  border: 1px solid #ccc; /* Default input border color */
+  border-radius: 5px;
+  background-color: white;
+}
+
 input[type="text"],
 select,
 textarea {
@@ -156,5 +164,14 @@ button[type="submit"]:hover {
 
 .results-button:hover {
   background-color: #0056b3;
+}
+
+/* Media query for adjusting the button on smaller screens */
+@media screen and (max-width: 768px) {
+  .results-button {
+    position: static;
+    margin-top: 10px;
+    text-align: center;
+  }
 }
 
