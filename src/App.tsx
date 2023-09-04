@@ -28,8 +28,11 @@ function App() {
     const [gender, setGender] = useState<GenderProps | ''>('');
     const [hasLicense, setHasLicense] = useState<string | null>(null);
     const [isFirstCar, setIsFirstCar] = useState<string | null>(null);
+    const [drivetrainOption, setDrivetrainOption] = useState<string | null>(null);
     const [surveyComplete, setSurveyComplete] = useState<boolean>(false);
     const [alert, setAlert] = useState<AlertProps>({showAlert: false, alertMessage: ''});
+
+    const [showLastQuestions, setshowLastQuestions] = useState<boolean>(false);
 
 
     /**
@@ -108,6 +111,23 @@ function App() {
                 alertMessage: 'Thank you for your interest, but you prefer using other transport'
             });
         }
+    };
+
+    const handleFirstCarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const selectedValue = e.target.value;
+        setIsFirstCar(selectedValue);
+        if (selectedValue === 'Yes') {
+            setAlert({
+                showAlert: true,
+                alertMessage: 'We are targeting more experienced clients. Thank you for your interest.'
+            });
+        } else {
+            setshowLastQuestions(true);
+        }
+    };
+
+    const handleDrivetrainChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setDrivetrainOption(e.target.value);
     };
 
     const handleCompleteSurvey = () => {
@@ -189,7 +209,7 @@ function App() {
                                 name="first-car"
                                 value="Yes"
                                 checked={isFirstCar === 'Yes'}
-                                onChange={() => setIsFirstCar('Yes')}
+                                onChange={handleFirstCarChange}
                             />
                             <label htmlFor="yes-first-car">Yes</label>
                             <input
@@ -198,9 +218,42 @@ function App() {
                                 name="first-car"
                                 value="No"
                                 checked={isFirstCar === 'No'}
-                                onChange={() => setIsFirstCar('No')}
+                                onChange={handleFirstCarChange}
                             />
                             <label htmlFor="no-first-car">No</label>
+                        </div>
+                    )}
+
+                    {showLastQuestions && (
+                        <div>
+                            <label htmlFor="drivetrain">Which drivetrain do you prefer?</label>
+                            <input
+                                type="radio"
+                                id="fwd"
+                                name="drivetrain"
+                                value="FWD"
+                                checked={drivetrainOption === 'FWD'}
+                                onChange={handleDrivetrainChange}
+                            />
+                            <label htmlFor="fwd-drivetrain">FWD</label>
+                            <input
+                                type="radio"
+                                id="rwd"
+                                name="drivetrain"
+                                value="RWD"
+                                checked={drivetrainOption === 'RWD'}
+                                onChange={handleDrivetrainChange}
+                            />
+                            <label htmlFor="rwd-drivetrain">RWD</label>
+                            <input
+                                type="radio"
+                                id="idk"
+                                name="drivetrain"
+                                value="IDK"
+                                checked={drivetrainOption === 'IDK'}
+                                onChange={handleDrivetrainChange}
+                            />
+                            <label htmlFor="idk-drivetrain">I don’t know</label>
                         </div>
                     )}
 
