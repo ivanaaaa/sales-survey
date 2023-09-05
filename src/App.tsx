@@ -213,13 +213,30 @@ function App() {
      */
     const handleDrivingLicenseChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const selectedValue = e.target.value;
+
+        if (selectedValue !== null) {
         setHasLicense(selectedValue);
+        }
         if (selectedValue === 'No') {
-            updateAndSaveSurvey();
             setAlert({
                 showAlert: true,
                 alertMessage: 'Thank you for your interest, but you prefer using other transport'
             });
+        }
+    };
+
+    /**
+     * Handles the blur event of a driving license input field in a form.
+     *
+     * Updates the 'hasLicense' state with the selected value ('Yes' or 'No').
+     * Displays an alert message if 'No' is selected to inform the user of the preference for other transport.
+     * It also updates and saves the survey data using the 'updateAndSaveSurvey' function.
+     *
+     * @param {React.ChangeEvent<HTMLInputElement>} e - The event object representing the input change.
+     */
+    const handleDrivingLicenseBlur = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.value === 'No') {
+            updateAndSaveSurvey();
         }
     };
 
@@ -236,11 +253,27 @@ function App() {
         const selectedValue = e.target.value;
         setIsFirstCar(selectedValue);
         if (selectedValue === 'Yes') {
-            updateAndSaveSurvey();
             setAlert({
                 showAlert: true,
                 alertMessage: 'We are targeting more experienced clients. Thank you for your interest.'
             });
+        }
+    };
+
+    /**
+     * Handles the blur event of a first car input field in a form.
+     *
+     * Updates the 'isFirstCar' state with the selected value ('Yes' or 'No').
+     * Displays an alert message if 'Yes' is selected to inform the user of the targeting preference.
+     * It also updates and saves the survey data using the 'updateAndSaveSurvey' function.
+     *
+     * @param {React.ChangeEvent<HTMLInputElement>} e - The event object representing the input change.
+     */
+    const handleFirstCarBlur = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const selectedValue = e.target.value;
+
+        if (e.target.value === 'Yes') {
+            updateAndSaveSurvey();
         }
     };
 
@@ -582,6 +615,7 @@ function App() {
                                 value="Yes"
                                 checked={hasLicense === 'Yes'}
                                 onChange={handleDrivingLicenseChange}
+                                onBlur={handleDrivingLicenseBlur}
                                 required
                             />
                             <label htmlFor="yes-license">Yes</label>
@@ -592,6 +626,7 @@ function App() {
                                 value="No"
                                 checked={hasLicense === 'No'}
                                 onChange={handleDrivingLicenseChange}
+                                onBlur={handleDrivingLicenseBlur}
                                 required
                             />
                             <label htmlFor="no-license">No, I prefer using other transport</label>
@@ -610,6 +645,7 @@ function App() {
                                 value="Yes"
                                 checked={isFirstCar === 'Yes'}
                                 onChange={handleFirstCarChange}
+                                onBlur={handleFirstCarBlur}
                             />
                             <label htmlFor="yes-first-car">Yes</label>
                             <input
@@ -619,6 +655,7 @@ function App() {
                                 value="No"
                                 checked={isFirstCar === 'No'}
                                 onChange={handleFirstCarChange}
+                                onBlur={handleFirstCarBlur}
                             />
                             <label htmlFor="no-first-car">No</label>
                         </div>
